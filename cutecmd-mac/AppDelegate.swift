@@ -51,7 +51,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func showApp (){
-        NSApp.unhide(self)
+        if(NSApp.isHidden) {
+            NSApp.unhide(self)
+        }
         window.center()
         window.makeKeyAndOrderFront(self)
         NSApp.activate(ignoringOtherApps: true)
@@ -110,6 +112,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.level = Int(CGWindowLevelKey.maximumWindow.rawValue)
         window.collectionBehavior = [.stationary, .canJoinAllSpaces, .fullScreenAuxiliary]
         window.setIsVisible(false)
+        
+        hideApp()
         
         
         NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: {(event: NSEvent) in
