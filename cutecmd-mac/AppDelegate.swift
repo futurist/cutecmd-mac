@@ -45,8 +45,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         task.arguments = args
         task.launch()
         task.waitUntilExit()
-        if( task.terminationStatus > 0 && args[0] != "open" ) {
-            runShell(["open"] + args)
+//        print(task.terminationStatus, task.terminationReason.rawValue)
+        if( task.terminationStatus > 0 ) {
+            if(args[0] != "open"){
+                return runShell(["open"] + args)
+            } else if(args.count > 1 && args[1] != "-a") {
+                var newArgs = [] + args
+                newArgs.insert("-a", at: 1)
+                return runShell( newArgs )
+            }
+            
         }
     }
     

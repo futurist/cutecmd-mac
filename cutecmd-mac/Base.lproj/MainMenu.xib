@@ -22,24 +22,24 @@
         <window title="cutecmd-mac" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="335" y="390" width="378" height="98"/>
+            <rect key="contentRect" x="335" y="390" width="418" height="98"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1057"/>
             <view key="contentView" wantsLayer="YES" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="378" height="98"/>
+                <rect key="frame" x="0.0" y="0.0" width="418" height="98"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="S4j-45-0lb">
-                        <rect key="frame" x="20" y="20" width="338" height="65"/>
+                        <rect key="frame" x="20" y="35" width="378" height="48"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="" id="ggH-t9-DIc">
-                            <font key="font" metaFont="system" size="22"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="asdf" placeholderString="" drawsBackground="YES" id="ggH-t9-DIc" customClass="TextFieldCell" customModule="cutecmd_mac" customModuleProvider="target">
+                            <font key="font" metaFont="system" size="24"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="88" y="31"/>
+            <point key="canvasLocation" x="108" y="31"/>
         </window>
     </objects>
 </document>
