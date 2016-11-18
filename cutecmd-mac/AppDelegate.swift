@@ -15,6 +15,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var window: NSWindow!
     @IBOutlet weak var input: NSTextField!
     
+    var isSpaceMode = false
+    
     let directoryURL = try? FileManager.default.url(for: .applicationScriptsDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     
 
@@ -34,7 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         } catch {
             print("url invalid")
-            runShell(filename.components(separatedBy: "\t"))
+            runShell(filename.components(separatedBy: " "))
         }
     }
     
@@ -59,6 +61,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func showApp (){
+        
+        isSpaceMode = false
+        updateMode()
+        
         if(NSApp.isHidden) {
             NSApp.unhide(self)
         }
@@ -77,6 +83,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func quitApp(){
         exit(0)
+    }
+    
+    func updateMode(){
+        window.backgroundColor = isSpaceMode ? NSColor.orange : NSColor.windowBackgroundColor
     }
     
     
@@ -146,9 +156,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.titlebarAppearsTransparent = true
         window.level = Int(CGWindowLevelKey.maximumWindow.rawValue)
         window.collectionBehavior = [.stationary, .canJoinAllSpaces, .fullScreenAuxiliary]
-        window.setIsVisible(false)
-        
-        hideApp()
+
+
+        showApp()
         
         
         NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: {(event: NSEvent) in
@@ -159,12 +169,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 return nil
             }
             
+            // TAB key will switch SpaceMode
             if(event.keyCode == 48){
-                self.input.stringValue += "\t"
+                self.isSpaceMode = !self.isSpaceMode
+                self.updateMode()
                 return nil
             }
             
-            if(event.keyCode == 49 || event.keyCode == 36) {  // SPACE or Enter
+            if(!self.isSpaceMode && event.keyCode == 49 || event.keyCode == 36) {  // SPACE or Enter
                 
                 self.ExecuteCommand(key: self.input.stringValue)
                 return nil
