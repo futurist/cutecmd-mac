@@ -99,6 +99,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return Timer.scheduledTimer(timeInterval: delay, target: BlockOperation(block: block), selector: #selector(Operation.main), userInfo: nil, repeats: false)
     }
     
+    /* Application Singleton */
+    
+    func checkSingleton (){
+        
+        // Check if another instance of this app is running
+        let bundleID = Bundle.main.bundleIdentifier!
+        let apps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+        
+        if apps.count > 1 {
+            
+            // Activate the other instance and terminate this instance
+            for app in apps {
+                if app != NSRunningApplication.current() {
+                    app.activate(options: [.activateIgnoringOtherApps])
+                    break
+                }
+            }
+            NSApp.terminate(nil)
+        }
+
+    }
+    
+    
+    /* Delegate methods */
+    
     func applicationWillResignActive(_ notification: Notification) {
         hideApp()
         
@@ -106,6 +131,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        
+        checkSingleton()
         
         HookKeyEvent.setupHook(trigger: showApp)
         
