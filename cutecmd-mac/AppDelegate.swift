@@ -63,7 +63,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func showApp (){
         
         isSpaceMode = false
-        updateMode()
+        updateInputMode()
         
         if(NSApp.isHidden) {
             NSApp.unhide(self)
@@ -85,8 +85,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         exit(0)
     }
     
-    func updateMode(){
-        window.backgroundColor = isSpaceMode ? NSColor.orange : NSColor.windowBackgroundColor
+    func updateInputMode(){
+        window.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.windowBackgroundColor
+        input.textColor = isSpaceMode ? NSColor.white : NSColor.textColor
+        input.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.controlBackgroundColor
+        input.cell!.backgroundStyle = NSBackgroundStyle.lowered
     }
     
     
@@ -157,7 +160,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.level = Int(CGWindowLevelKey.maximumWindow.rawValue)
         window.collectionBehavior = [.stationary, .canJoinAllSpaces, .fullScreenAuxiliary]
 
-
         showApp()
         
         
@@ -170,9 +172,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             
             // TAB key will switch SpaceMode
-            if(event.keyCode == 48){
+            if(event.charactersIgnoringModifiers == "s" && event.modifierFlags.contains(.command)){
                 self.isSpaceMode = !self.isSpaceMode
-                self.updateMode()
+                self.updateInputMode()
                 return nil
             }
             
