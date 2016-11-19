@@ -207,15 +207,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // prevent quote etc. be replaced
         input.enabledTextCheckingTypes = 0
-        
-        
+                
         window.contentView!.addSubview(input)
         
         showApp()
         
         
         NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: {(event: NSEvent) in
-            
+                        
             // Command-Space will insert SPACE
             if(event.keyCode == 49 && event.modifierFlags.contains(.command)){
                 self.input.string! += " "

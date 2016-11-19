@@ -16,5 +16,17 @@ class TextView: NSTextView {
         NSRectFill(NSRect(x: rect.origin.x, y: rect.origin.y, width: rect.size.width+1, height: rect.size.height) )
     }
     
+    // prevent rich text pasting break format
+    override func paste(_ sender: Any?) {
+        pasteAsPlainText(sender)
+    }
+    
+    // when text changed, frames may enlarge to multiline
+    override func controlTextDidChange(_ obj: Notification) {
+        let window = self.window
+        
+        let height = self.frame.height
+        let top = (window.frame.height - height)/2
+    }
     
 }
