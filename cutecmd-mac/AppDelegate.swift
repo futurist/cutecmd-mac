@@ -126,7 +126,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     }
     
     func updateInputMode() {
-        window.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.windowBackgroundColor
+        window.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.init(hue: 0, saturation: 0, brightness: 0.85, alpha: 1)
         try input.textColor = isSpaceMode ? NSColor.blue : NSColor.textColor
         try input.backgroundColor = isSpaceMode ? NSColor.lightGray : NSColor.controlBackgroundColor
     }
@@ -219,6 +219,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         // wait for the event loop to activate
         DispatchQueue.main.async {
             self.showApp()
+            self.updateInputMode()
         }
         
         
