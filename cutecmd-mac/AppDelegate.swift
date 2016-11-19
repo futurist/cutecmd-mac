@@ -35,13 +35,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self.hideApp()
             }
         } catch {
-            print("url invalid")
-            runShell(splitCommandLine(str: filename, by:[" "]))
+            print("script not found")
+            runShell(splitCommandLine(str: filename, by:[" "]), raw: filename)
         }
     }
     
     @discardableResult
-    func runShell(_ args: [String]) {
+    func runShell(_ args: [String], raw rawString: String = "") {
         let task = Process()
         task.launchPath = "/usr/bin/env"
         task.arguments = args
@@ -49,6 +49,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         task.waitUntilExit()
 //        print(task.terminationStatus, task.terminationReason.rawValue)
         if( task.terminationStatus > 0 ) {
+            if(!rawString.isEmpty){
+                return runShell(["open"] + [rawString])
+            }
             if(args[0] != "open"){
                 return runShell(["open"] + args)
             } else if(args.count > 1 && args[1] != "-a") {
@@ -92,15 +95,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         return result.map({x in
             var isQuoted = false
+            var unQuoted = x
             for (_, quote) in str.characters.enumerated() {
                 isQuoted = x.hasPrefix(String(quote)) && x.hasSuffix(String(quote))
-                if isQuoted { break }
+                if isQuoted && x.characters.count > 1 {
+                    // when only one char in x, below will throw error
+                    unQuoted = x[x.index(x.startIndex, offsetBy: 1)..<x.index(x.endIndex, offsetBy: -1) ]
+                    break
+                }
             }
             //            x.characters.dropLast().dropLast()
-            
-            return isQuoted
-                ? x[x.index(x.startIndex, offsetBy: 1)..<x.index(x.endIndex, offsetBy: -1) ]
-                : x
+
+            return unQuoted
         })
         
     }
