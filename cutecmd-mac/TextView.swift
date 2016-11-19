@@ -23,7 +23,7 @@ class TextView: NSTextView {
     
     // when text changed, frames may enlarge to multiline
     override func controlTextDidChange(_ obj: Notification) {
-        let window = self.window
+        let window = self.window!
         
         let height = self.frame.height
         let top = (window.frame.height - height)/2

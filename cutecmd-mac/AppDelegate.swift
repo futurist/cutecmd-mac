@@ -9,7 +9,7 @@
 import Cocoa
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     
     @IBOutlet weak var window: NSWindow!
     
@@ -207,7 +207,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // prevent quote etc. be replaced
         input.enabledTextCheckingTypes = 0
-                
+        
+        input.delegate = self
+                        
         window.contentView!.addSubview(input)
         
         showApp()
@@ -244,6 +246,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return event
         })
         
+    }
+    
+    
+    // when text changed, frames may enlarge to multiline
+    func textDidChange(_ notification: Notification) {
+        print(input.frame.size)
     }
     
 }
