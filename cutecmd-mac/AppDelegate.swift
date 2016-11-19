@@ -216,7 +216,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         
         updateSize()
         
-        showApp()
+        // wait for the event loop to activate
+        DispatchQueue.main.async {
+            self.showApp()
+        }
+        
         
         NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: {(event: NSEvent) in
                         
