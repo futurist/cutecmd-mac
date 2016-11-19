@@ -65,7 +65,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     
     func showApp (){
         
-        
         if(NSApp.isHidden) {
             NSApp.unhide(self)
         }
@@ -75,6 +74,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         window.makeFirstResponder(input)
         
     }
+    
+    
+    func hideApp (){
+        //        window.orderOut(self)
+        NSApp.hide(self)
+        
+        isSpaceMode = false
+        updateInputMode()
+        
+    }
+    
     
     // split command line with space, regard Quote
     // The result don't contain Quote at first/end
@@ -110,23 +120,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         })
         
     }
-    
-    func hideApp (){
-        //        window.orderOut(self)
-        NSApp.hide(self)
-        
-        isSpaceMode = false
-        updateInputMode()
-    }
-    
+
     func quitApp(){
         exit(0)
     }
     
-    func updateInputMode(){
+    func updateInputMode() {
         window.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.windowBackgroundColor
-        input.textColor = isSpaceMode ? NSColor.blue : NSColor.textColor
-        input.backgroundColor = isSpaceMode ? NSColor.lightGray : NSColor.controlBackgroundColor
+        try input.textColor = isSpaceMode ? NSColor.blue : NSColor.textColor
+        try input.backgroundColor = isSpaceMode ? NSColor.lightGray : NSColor.controlBackgroundColor
     }
     
     
@@ -212,8 +214,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
                         
         window.contentView!.addSubview(input)
         
-        showApp()
+        updateSize()
         
+        showApp()
         
         NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: {(event: NSEvent) in
                         
@@ -251,7 +254,25 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     
     // when text changed, frames may enlarge to multiline
     func textDidChange(_ notification: Notification) {
-        print(input.frame.size)
+        
+        updateSize()
+        
+    }
+    
+    func updateSize(){
+        var frame = window.frame
+        var inputOrigin = input.frame.origin
+        let oldHeight = frame.size.height
+        
+        let inputHeight = input.frame.height
+        let winHeight = inputHeight + 40
+        inputOrigin.y = (winHeight - inputHeight)/2
+        
+        frame.size.height = winHeight
+        frame.origin.y -= (winHeight - oldHeight)
+        
+        window.setFrame(frame, display: true)
+        input.setFrameOrigin(inputOrigin)
     }
     
 }
