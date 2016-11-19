@@ -8,7 +8,6 @@
 
 import Cocoa
 
-
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     
@@ -37,7 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         } catch {
             print("url invalid")
-            runShell(filename.components(separatedBy: " "))
+            runShell(splitCommandLine(str: filename, by:[" "]))
         }
     }
     
@@ -63,8 +62,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func showApp (){
         
-        isSpaceMode = false
-        updateInputMode()
         
         if(NSApp.isHidden) {
             NSApp.unhide(self)
@@ -72,14 +69,48 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.center()
         window.makeKeyAndOrderFront(self)
         NSApp.activate(ignoringOtherApps: true)
+        window.makeFirstResponder(input)
         
-        //        window.makeFirstResponder(input)
+    }
+    
+    // split command line with space, regard Quote
+    // The result don't contain Quote at first/end
+    func splitCommandLine(str: String, by characterSet: CharacterSet) -> [String] {
+        let quoteStr = "\'\""
+        let quoteSet = CharacterSet.init(charactersIn: quoteStr)
+        var apperQuote = false
+        let result = str.utf16.split(maxSplits: Int.max, omittingEmptySubsequences: true) { x in
+            if quoteSet.contains(UnicodeScalar(x)!) {
+                apperQuote = !apperQuote
+            }
+            if apperQuote {
+                return false
+            } else {
+                return characterSet.contains(UnicodeScalar(x)!)
+            }
+            }.flatMap(String.init)
+        
+        return result.map({x in
+            var isQuoted = false
+            for (_, quote) in str.characters.enumerated() {
+                isQuoted = x.hasPrefix(String(quote)) && x.hasSuffix(String(quote))
+                if isQuoted { break }
+            }
+            //            x.characters.dropLast().dropLast()
+            
+            return isQuoted
+                ? x[x.index(x.startIndex, offsetBy: 1)..<x.index(x.endIndex, offsetBy: -1) ]
+                : x
+        })
+        
     }
     
     func hideApp (){
         //        window.orderOut(self)
         NSApp.hide(self)
         
+        isSpaceMode = false
+        updateInputMode()
     }
     
     func quitApp(){
@@ -142,10 +173,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
     }
     
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        checkSingleton()
+    }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        
-        checkSingleton()
         
         HookKeyEvent.setupHook(trigger: showApp)
         
@@ -160,12 +192,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.level = Int(CGWindowLevelKey.maximumWindow.rawValue)
         window.collectionBehavior = [.stationary, .canJoinAllSpaces, .fullScreenAuxiliary]
 
-        let yPos = (window.frame.height - 48)/2
-        input = NSTextView(frame: NSMakeRect(20, yPos, window.frame.width-40, 48))
+        let top = (window.frame.height - 48)/2
+        input = TextView(frame: NSMakeRect(20, top, window.frame.width-40, 48))
         input.textContainerInset = NSSize(width: 10, height: 10)
         input.font = NSFont(name:"Helvetica", size:24)
         input.isEditable = true
         input.isSelectable = true
+        
+        // prevent quote etc. be replaced
+        input.enabledTextCheckingTypes = 0
         
         
         window.contentView!.addSubview(input)
