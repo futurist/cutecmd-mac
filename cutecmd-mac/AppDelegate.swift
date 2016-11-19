@@ -13,7 +13,8 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
     
     @IBOutlet weak var window: NSWindow!
-    @IBOutlet weak var input: NSTextField!
+    
+    var input: NSTextView!
     
     var isSpaceMode = false
     
@@ -87,9 +88,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func updateInputMode(){
         window.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.windowBackgroundColor
-        input.textColor = isSpaceMode ? NSColor.white : NSColor.textColor
-        input.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.controlBackgroundColor
-        input.cell!.backgroundStyle = NSBackgroundStyle.lowered
+        input.textColor = isSpaceMode ? NSColor.blue : NSColor.textColor
+        input.backgroundColor = isSpaceMode ? NSColor.lightGray : NSColor.controlBackgroundColor
     }
     
     
@@ -105,7 +105,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         default:
             runScript(filename: key)
         }
-        self.input.stringValue.removeAll()
+        self.input.string!.removeAll()
     }
     
     func setTimeout(delay:TimeInterval, block:@escaping ()->Void) -> Timer {
@@ -160,6 +160,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.level = Int(CGWindowLevelKey.maximumWindow.rawValue)
         window.collectionBehavior = [.stationary, .canJoinAllSpaces, .fullScreenAuxiliary]
 
+        let yPos = (window.frame.height - 48)/2
+        input = NSTextView(frame: NSMakeRect(20, yPos, window.frame.width-40, 48))
+        input.textContainerInset = NSSize(width: 10, height: 10)
+        input.font = NSFont(name:"Helvetica", size:24)
+        input.isEditable = true
+        input.isSelectable = true
+        
+        
+        window.contentView!.addSubview(input)
+        
         showApp()
         
         
@@ -167,7 +177,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             // Command-Space will insert SPACE
             if(event.keyCode == 49 && event.modifierFlags.contains(.command)){
-                self.input.stringValue += " "
+                self.input.string! += " "
                 return nil
             }
             
@@ -180,13 +190,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             if(!self.isSpaceMode && event.keyCode == 49 || event.keyCode == 36) {  // SPACE or Enter
                 
-                self.ExecuteCommand(key: self.input.stringValue)
+                self.ExecuteCommand(key: self.input.string!)
                 return nil
             }
             
             if(event.keyCode == 53  //ESC or Ctrl-G
                 || event.charactersIgnoringModifiers == "g" && event.modifierFlags.contains(.control)) {
-                self.input.stringValue.removeAll()
+                self.input.string!.removeAll()
                 self.hideApp()
                 return nil
             }
