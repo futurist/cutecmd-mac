@@ -189,9 +189,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         
-        HookKeyEvent.setupHook(trigger: showApp)
-        
-        
         window.isMovableByWindowBackground  = true
         window.titleVisibility = NSWindowTitleVisibility.hidden
         window.styleMask.insert(.fullSizeContentView)
@@ -220,6 +217,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         DispatchQueue.main.async {
             self.showApp()
             self.updateInputMode()
+            HookKeyEvent.setupHook(trigger: self.showApp)
         }
         
         
@@ -227,16 +225,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
             
             let newEvent = NSEvent.keyEvent(with: event.type,
                                                     location: event.locationInWindow,
-                                                    modifierFlags: event.modifierFlags,
+                                                    modifierFlags: NSEventModifierFlags.init(rawValue: 0),
                                                     timestamp: event.timestamp,
                                                     windowNumber: event.windowNumber,
                                                     context: event.context,
-                                                    characters: "H",
-                                                    charactersIgnoringModifiers: event.charactersIgnoringModifiers!,
+                                                    characters: "\u{F701}",
+                                                    charactersIgnoringModifiers: "",
                                                     isARepeat: event.isARepeat,
-                                                    keyCode: event.keyCode)
+                                                    keyCode: 125)
             
-            if (event.keyCode==0) {
+            print(event.keyCode, UnicodeScalar(event.characters!) )
+            
+            
+            
+            
+//            for code in String(event.characters ?? "empty").utf8 { print(code) }
+
+            if (event.keyCode==45 && event.modifierFlags.contains(.control)) {
                 return newEvent
             }
             
@@ -291,10 +296,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     
     func textView(_ textView: NSTextView, completions words: [String], forPartialWordRange charRange: NSRange, indexOfSelectedItem index: UnsafeMutablePointer<Int>?) -> [String] {
         
-        print(words, charRange.location, charRange.length)
-        if let a=index {
-            print("selected", a.withMemoryRebound(to: Int.self, capacity: 1, { $0.pointee }))
-        }
+//        print(words, charRange.location, charRange.length)
+//        if let a=index {
+//            print("selected", a.withMemoryRebound(to: Int.self, capacity: 1, { $0.pointee }))
+//        }
+        
         return  [input.string!] + ["aaa", "bbbb"]
     }
     
