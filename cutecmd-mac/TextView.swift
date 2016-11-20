@@ -20,5 +20,5 @@ class TextView: NSTextView {
     override func paste(_ sender: Any?) {
         pasteAsPlainText(sender)
     }
-    
+
 }

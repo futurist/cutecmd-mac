@@ -216,8 +216,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
                         
         window.contentView!.addSubview(input)
         
-        updateSize()
-        
         // wait for the event loop to activate
         DispatchQueue.main.async {
             self.showApp()
@@ -226,7 +224,22 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         
         
         NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: {(event: NSEvent) in
-                        
+            
+            let newEvent = NSEvent.keyEvent(with: event.type,
+                                                    location: event.locationInWindow,
+                                                    modifierFlags: event.modifierFlags,
+                                                    timestamp: event.timestamp,
+                                                    windowNumber: event.windowNumber,
+                                                    context: event.context,
+                                                    characters: "H",
+                                                    charactersIgnoringModifiers: event.charactersIgnoringModifiers!,
+                                                    isARepeat: event.isARepeat,
+                                                    keyCode: event.keyCode)
+            
+            if (event.keyCode==0) {
+                return newEvent
+            }
+            
             // Command-Space will insert SPACE
             if(event.keyCode == 49 && event.modifierFlags.contains(.command)){
                 self.input.string! += " "
@@ -264,6 +277,25 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         
         updateSize()
         
+        if (!isCompleting) {
+            // to prevent infinite loop
+            isCompleting = true
+            input.complete(nil)
+            isCompleting = false
+        }
+        
+    }
+    
+    // suggestion
+    var isCompleting = false
+    
+    func textView(_ textView: NSTextView, completions words: [String], forPartialWordRange charRange: NSRange, indexOfSelectedItem index: UnsafeMutablePointer<Int>?) -> [String] {
+        
+        print(words, charRange.location, charRange.length)
+        if let a=index {
+            print("selected", a.withMemoryRebound(to: Int.self, capacity: 1, { $0.pointee }))
+        }
+        return  [input.string!] + ["aaa", "bbbb"]
     }
     
     func updateSize(){
