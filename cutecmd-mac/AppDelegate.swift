@@ -14,8 +14,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     @IBOutlet weak var window: NSWindow!
     
     var input: NSTextView!
-    
+    var downE:NSEvent!
     var isSpaceMode = false
+    
+    // suggestion dropDown is showing?
+    var isCompleting = false
     
     let directoryURL = try? FileManager.default.url(for: .applicationScriptsDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     
@@ -220,69 +223,93 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
             HookKeyEvent.setupHook(trigger: self.showApp)
         }
         
-        
-        NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: {(event: NSEvent) in
-            
-            let newEvent = NSEvent.keyEvent(with: event.type,
-                                                    location: event.locationInWindow,
-                                                    modifierFlags: NSEventModifierFlags.init(rawValue: 0),
-                                                    timestamp: event.timestamp,
-                                                    windowNumber: event.windowNumber,
-                                                    context: event.context,
-                                                    characters: "\u{F701}",
-                                                    charactersIgnoringModifiers: "",
-                                                    isARepeat: event.isARepeat,
-                                                    keyCode: 125)
-            
-            print(event.keyCode, UnicodeScalar(event.characters!) )
-            
-            
-//            for code in String(event.characters ?? "empty").utf8 { print(code) }
-
-            if (event.keyCode==45 && event.modifierFlags.contains(.control)) {
-                print(1111111111)
-                
-                let src = CGEventSource(stateID: CGEventSourceStateID.hidSystemState)
-                let location = CGEventTapLocation.cghidEventTap
-                
-                CGEvent.init(keyboardEventSource: src, virtualKey: 125, keyDown: true)!.post(tap: location)
-                CGEvent.init(keyboardEventSource: src, virtualKey: 125, keyDown: false)!.post(tap: location)
-                
-                return nil
-            }
-            
-            // Command-Space will insert SPACE
-            if(event.keyCode == 49 && event.modifierFlags.contains(.command)){
-                self.input.string! += " "
-                return nil
-            }
-            
-            // TAB key will switch SpaceMode
-            if(event.charactersIgnoringModifiers == "s" && event.modifierFlags.contains(.command)){
-                self.isSpaceMode = !self.isSpaceMode
-                self.updateInputMode()
-                return nil
-            }
-            
-            if(!self.isSpaceMode && event.keyCode == 49 || event.keyCode == 36) {  // SPACE or Enter
-                
-                self.ExecuteCommand(key: self.input.string!)
-                return nil
-            }
-            
-            if(event.keyCode == 53  //ESC or Ctrl-G
-                || event.charactersIgnoringModifiers == "g" && event.modifierFlags.contains(.control)) {
-                self.input.string!.removeAll()
-                self.hideApp()
-                return nil
-            }
-            
-            return event
-        })
+        NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler:localEventMonitor )
         
     }
     
     
+    func localEventMonitor(event: NSEvent) -> NSEvent? {
+        
+        let newEvent = NSEvent.keyEvent(with: event.type,
+                                        location: event.locationInWindow,
+                                        modifierFlags: NSEventModifierFlags.init(rawValue: 0),
+                                        timestamp: event.timestamp,
+                                        windowNumber: event.windowNumber,
+                                        context: event.context,
+                                        characters: "\u{F701}",
+                                        charactersIgnoringModifiers: "",
+                                        isARepeat: event.isARepeat,
+                                        keyCode: 125)
+        
+        print(event.keyCode, UnicodeScalar(event.characters!) )
+        
+        //            for code in String(event.characters ?? "empty").utf8 { print(code) }
+        
+        if(event.keyCode==96) {
+            print("is down")
+            downE = event
+            sendKeyPress()
+        }
+        
+        if (event.keyCode==45 && event.modifierFlags.contains(.control)) {
+            print(1111111111)
+            
+//            input.interpretKeyEvents([downE])
+//            window.interpretKeyEvents([downE])
+//            NSApp.interpretKeyEvents([downE])
+            
+//            downE.cgEvent?.post(tap: CGEventTapLocation.cghidEventTap)
+            
+            return nil
+        }
+        
+        // Command-Space will insert SPACE
+        if(event.keyCode == 49 && event.modifierFlags.contains(.command)){
+            self.input.string! += " "
+            return nil
+        }
+        
+        // TAB key will switch SpaceMode
+        if(event.charactersIgnoringModifiers == "s" && event.modifierFlags.contains(.command)){
+            self.isSpaceMode = !self.isSpaceMode
+            self.updateInputMode()
+            return nil
+        }
+        
+        if(!self.isSpaceMode && event.keyCode == 49 || event.keyCode == 36) {  // SPACE or Enter
+            
+            self.ExecuteCommand(key: self.input.string!)
+            return nil
+        }
+        
+        if(event.keyCode == 53  //ESC or Ctrl-G
+            || event.charactersIgnoringModifiers == "g" && event.modifierFlags.contains(.control)) {
+            self.input.string!.removeAll()
+            self.hideApp()
+            return nil
+        }
+        
+        return event
+    }
+    
+    func sendKeyPress () {
+        // 123=left, 124=right, 125=down, 126=up
+        let src = CGEventSource(stateID: CGEventSourceStateID.hidSystemState)
+        let location = CGEventTapLocation.cghidEventTap
+        
+        CGEvent.init(keyboardEventSource: src, virtualKey: 125, keyDown: true)!.post(tap: location)
+        CGEvent.init(keyboardEventSource: src, virtualKey: 125, keyDown: false)!.post(tap: location)
+        
+    }
+    
+}
+
+
+extension AppDelegate {
+
+    /* NSTextView Delegate part */
+    
+
     // when text changed, frames may enlarge to multiline
     func textDidChange(_ notification: Notification) {
         
@@ -297,15 +324,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         
     }
     
-    // suggestion
-    var isCompleting = false
     
     func textView(_ textView: NSTextView, completions words: [String], forPartialWordRange charRange: NSRange, indexOfSelectedItem index: UnsafeMutablePointer<Int>?) -> [String] {
         
-//        print(words, charRange.location, charRange.length)
-//        if let a=index {
-//            print("selected", a.withMemoryRebound(to: Int.self, capacity: 1, { $0.pointee }))
-//        }
+        //        print(words, charRange.location, charRange.length)
+        //        if let a=index {
+        //            print("selected", a.withMemoryRebound(to: Int.self, capacity: 1, { $0.pointee }))
+        //        }
         
         return  [input.string!] + ["aaa", "bbbb"]
     }
@@ -325,13 +350,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         window.setFrame(frame, display: true)
         input.setFrameOrigin(inputOrigin)
     }
-    
+
 }
 
 
 
-
 private class HookKeyEvent {
+    
+    /* Hook key in global */
     
     public static let shared = HookKeyEvent()
     
