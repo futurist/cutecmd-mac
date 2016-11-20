@@ -65,6 +65,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     
     func showApp (){
         
+        updateSize()
+        
         if(NSApp.isHidden) {
             NSApp.unhide(self)
         }

@@ -68,7 +68,8 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="dXu-a3-6Ma"/>
-                            <menuItem title="Quit cutecmd" keyEquivalent="q" id="4Av-V6-xIy">
+                            <menuItem title="Quit cutecmd" id="4Av-V6-xIy">
+                                <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="terminate:" target="-1" id="B5B-Ml-kxg"/>
                                 </connections>
