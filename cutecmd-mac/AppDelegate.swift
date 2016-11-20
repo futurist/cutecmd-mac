@@ -230,38 +230,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     
     func localEventMonitor(event: NSEvent) -> NSEvent? {
         
-        let newEvent = NSEvent.keyEvent(with: event.type,
-                                        location: event.locationInWindow,
-                                        modifierFlags: NSEventModifierFlags.init(rawValue: 0),
-                                        timestamp: event.timestamp,
-                                        windowNumber: event.windowNumber,
-                                        context: event.context,
-                                        characters: "\u{F701}",
-                                        charactersIgnoringModifiers: "",
-                                        isARepeat: event.isARepeat,
-                                        keyCode: 125)
-        
-        print(event.keyCode, UnicodeScalar(event.characters!) )
-        
-        //            for code in String(event.characters ?? "empty").utf8 { print(code) }
-        
-        if(event.keyCode==96) {
-            print("is down")
-            downE = event
-            sendKeyPress()
-        }
-        
-        if (event.keyCode==45 && event.modifierFlags.contains(.control)) {
-            print(1111111111)
-            
-//            input.interpretKeyEvents([downE])
-//            window.interpretKeyEvents([downE])
-//            NSApp.interpretKeyEvents([downE])
-            
-//            downE.cgEvent?.post(tap: CGEventTapLocation.cghidEventTap)
-            
-            return nil
-        }
+//        print(event.keyCode, UnicodeScalar(event.characters!) )
         
         // Command-Space will insert SPACE
         if(event.keyCode == 49 && event.modifierFlags.contains(.command)){
