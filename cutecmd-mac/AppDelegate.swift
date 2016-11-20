@@ -237,12 +237,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
             print(event.keyCode, UnicodeScalar(event.characters!) )
             
             
-            
-            
 //            for code in String(event.characters ?? "empty").utf8 { print(code) }
 
             if (event.keyCode==45 && event.modifierFlags.contains(.control)) {
-                return newEvent
+                print(1111111111)
+                
+                let src = CGEventSource(stateID: CGEventSourceStateID.hidSystemState)
+                let location = CGEventTapLocation.cghidEventTap
+                
+                CGEvent.init(keyboardEventSource: src, virtualKey: 125, keyDown: true)!.post(tap: location)
+                CGEvent.init(keyboardEventSource: src, virtualKey: 125, keyDown: false)!.post(tap: location)
+                
+                return nil
             }
             
             // Command-Space will insert SPACE
