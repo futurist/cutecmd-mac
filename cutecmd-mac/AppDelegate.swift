@@ -14,8 +14,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     @IBOutlet weak var window: NSWindow!
     
     var input: NSTextView!
-    var downE:NSEvent!
+    
+    // Cmd-S to switch between sapce mode
     var isSpaceMode = false
+    
+    var popupTimer:Timer?
     
     // suggestion dropDown is showing?
     var isCompleting = false
@@ -27,6 +30,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         if let folder = directoryURL {
             NSWorkspace.shared().open(folder)
         }
+        
     }
     
     func runScript(filename: String){
@@ -82,6 +86,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     
     
     func hideApp (){
+        stopPopupTimer()
+        
         //        window.orderOut(self)
         NSApp.hide(self)
         
@@ -90,7 +96,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         
     }
     
-    
+    func quitApp(){
+        exit(0)
+    }
+
     // split command line with space, regard Quote
     // The result don't contain Quote at first/end
     func splitCommandLine(str: String, by characterSet: CharacterSet) -> [String] {
@@ -126,9 +135,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         
     }
 
-    func quitApp(){
-        exit(0)
-    }
     
     func updateInputMode() {
         window.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.init(hue: 0, saturation: 0, brightness: 0.85, alpha: 1)
@@ -278,18 +284,28 @@ extension AppDelegate {
 
     /* NSTextView Delegate part */
     
+    func stopPopupTimer (){
+        if let timer = popupTimer {
+            timer.invalidate()
+        }
+    }
 
     // when text changed, frames may enlarge to multiline
     func textDidChange(_ notification: Notification) {
         
         updateSize()
         
-        if (!isCompleting) {
-            // to prevent infinite loop
-            isCompleting = true
-            input.complete(nil)
-            isCompleting = false
-        }
+        stopPopupTimer()
+        
+        popupTimer = setTimeout(delay: 0.3, block: { () -> Void in
+            // delay popup completion window
+            if (!self.isCompleting) {
+                // to prevent infinite loop
+                self.isCompleting = true
+                self.input.complete(nil)
+                self.isCompleting = false
+            }
+        })
         
     }
     
