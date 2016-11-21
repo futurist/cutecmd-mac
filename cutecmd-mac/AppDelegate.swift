@@ -46,40 +46,29 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         } catch {
             print("script not found")
             
-            do {
-                
-                if try URL.init(fileURLWithPath: filename).checkResourceIsReachable() {
-                    runShell(["open"] + [filename])
-                    self.hideApp()
-                }
-            } catch {
-                print("file/folder not found")
-                runShell(splitCommandLine(str: filename, by:[" "]), raw: filename)
+            let args = splitCommandLine(str: filename, by:[" "])
+            
+            // first try run as a Applicaiton
+            if( runShell(["open \'\(filename)\'"]) > 0
+                && runShell(["open -a \'\(filename)\'"]) > 0
+                && runShell( args ) > 0
+                ) {
+                print("Command execute error", args)
+            } else {
+                hideApp()
             }
         }
     }
     
     @discardableResult
-    func runShell(_ args: [String], raw rawString: String = "") {
+    func runShell(_ args: [String], raw rawString: String = "") -> Int32 {
         let task = Process()
-        task.launchPath = "/usr/bin/env"
-        task.arguments = args
+        task.launchPath = "/bin/bash"
+        task.arguments = ["-c"] + args
         task.launch()
         task.waitUntilExit()
 //        print(task.terminationStatus, task.terminationReason.rawValue)
-        if( task.terminationStatus > 0 ) {
-
-            if(args[0] != "open"){
-                return runShell(["open"] + args)
-            } else if(args.count > 1 && args[1] != "-a") {
-                var newArgs = [] + args
-                newArgs.insert("-a", at: 1)
-                return runShell( newArgs )
-            }
-            
-        } else {
-            self.hideApp()
-        }
+        return task.terminationStatus
     }
     
     func showApp (){
