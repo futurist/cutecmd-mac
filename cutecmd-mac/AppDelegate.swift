@@ -23,6 +23,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     // suggestion dropDown is showing?
     var isCompleting = false
     
+    let wordRegEx = "[0-9a-zA-Z_]+$"
+    
     let directoryURL = try? FileManager.default.url(for: .applicationScriptsDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     
 
@@ -354,15 +356,14 @@ extension AppDelegate {
 //        print(range.location, range.length, str.substring(to: str.index(str.startIndex, offsetBy: range.location))  )
         
         let strOfCaret = str.substring(to: str.index(str.startIndex, offsetBy: range.location))
-        
-        let word = self.matches(for: "[0-9a-zA-Z_]+$", in: strOfCaret).last ?? ""
+        let word = self.matches(for: wordRegEx, in: strOfCaret).last ?? ""
         
         //        print(words, charRange.location, charRange.length)
         //        if let a=index {
         //            print("selected", a.withMemoryRebound(to: Int.self, capacity: 1, { $0.pointee }))
         //        }
 
-        return  word.isEmpty ? words : [word] + ["aaa", "bbbb"]
+        return  word.isEmpty ? [] : [word] + ["aaa", "bbbb"]
     }
     
     func updateSize(){
