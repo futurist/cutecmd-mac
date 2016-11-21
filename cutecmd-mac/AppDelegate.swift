@@ -221,7 +221,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     
     func localEventMonitor(event: NSEvent) -> NSEvent? {
         
-        print(event.keyCode, UnicodeScalar(event.characters!), event.charactersIgnoringModifiers )
+//        print(event.keyCode, UnicodeScalar(event.characters!), event.charactersIgnoringModifiers )
         
         // Command-Space will insert SPACE
         if(event.keyCode == 49 && event.modifierFlags.contains(.command)){
@@ -348,7 +348,14 @@ extension AppDelegate {
     
     func textView(_ textView: NSTextView, completions words: [String], forPartialWordRange charRange: NSRange, indexOfSelectedItem index: UnsafeMutablePointer<Int>?) -> [String] {
         
-        let word = self.matches(for: "[0-9a-zA-Z_]+$", in: input.string!).last ?? ""
+        let str = input.string!
+        let range = input.selectedRange()
+        
+//        print(range.location, range.length, str.substring(to: str.index(str.startIndex, offsetBy: range.location))  )
+        
+        let strOfCaret = str.substring(to: str.index(str.startIndex, offsetBy: range.location))
+        
+        let word = self.matches(for: "[0-9a-zA-Z_]+$", in: strOfCaret).last ?? ""
         
         //        print(words, charRange.location, charRange.length)
         //        if let a=index {
