@@ -43,7 +43,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
             }
         } catch {
             print("script not found")
-            runShell(splitCommandLine(str: filename, by:[" "]), raw: filename)
+            
+            do {
+                
+                if try URL.init(fileURLWithPath: filename).checkResourceIsReachable() {
+                    runShell(["open"] + [filename])
+                    self.hideApp()
+                }
+            } catch {
+                print("file/folder not found")
+                runShell(splitCommandLine(str: filename, by:[" "]), raw: filename)
+            }
         }
     }
     
@@ -56,9 +66,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         task.waitUntilExit()
 //        print(task.terminationStatus, task.terminationReason.rawValue)
         if( task.terminationStatus > 0 ) {
-            if(!rawString.isEmpty){
-                return runShell(["open"] + [rawString])
-            }
+
             if(args[0] != "open"){
                 return runShell(["open"] + args)
             } else if(args.count > 1 && args[1] != "-a") {
@@ -67,6 +75,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
                 return runShell( newArgs )
             }
             
+        } else {
+            self.hideApp()
         }
     }
     
@@ -158,32 +168,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         self.input.string!.removeAll()
     }
     
-    func setTimeout(delay:TimeInterval, block:@escaping ()->Void) -> Timer {
-        return Timer.scheduledTimer(timeInterval: delay, target: BlockOperation(block: block), selector: #selector(Operation.main), userInfo: nil, repeats: false)
-    }
-    
-    /* Application Singleton */
-    
-    func checkSingleton (){
-        
-        // Check if another instance of this app is running
-        let bundleID = Bundle.main.bundleIdentifier!
-        let apps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
-        
-        if apps.count > 1 {
-            
-            // Activate the other instance and terminate this instance
-            for app in apps {
-                if app != NSRunningApplication.current() {
-                    app.activate(options: [.activateIgnoringOtherApps])
-                    break
-                }
-            }
-            NSApp.terminate(nil)
-        }
-
-    }
-    
     
     /* Delegate methods */
     
@@ -234,9 +218,25 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     }
     
     
+    
     func localEventMonitor(event: NSEvent) -> NSEvent? {
         
 //        print(event.keyCode, UnicodeScalar(event.characters!) )
+        
+        if(event.modifierFlags.rawValue<=256) {
+            
+            stopPopupTimer()
+            
+            popupTimer = setTimeout(delay: 0.3, block: { () -> Void in
+                // delay popup completion window
+                if (!self.isCompleting) {
+                    // to prevent infinite loop
+                    self.isCompleting = true
+                    self.input.complete(nil)
+                    self.isCompleting = false
+                }
+            })
+        }
         
         // Command-Space will insert SPACE
         if(event.keyCode == 49 && event.modifierFlags.contains(.command)){
@@ -267,6 +267,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         return event
     }
     
+    
     func sendKeyPress () {
         // 123=left, 124=right, 125=down, 126=up
         let src = CGEventSource(stateID: CGEventSourceStateID.hidSystemState)
@@ -276,6 +277,52 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         CGEvent.init(keyboardEventSource: src, virtualKey: 125, keyDown: false)!.post(tap: location)
         
     }
+    
+}
+
+extension AppDelegate {
+    /* --- Some util func --- */
+    
+    func setTimeout(delay:TimeInterval, block:@escaping ()->Void) -> Timer {
+        return Timer.scheduledTimer(timeInterval: delay, target: BlockOperation(block: block), selector: #selector(Operation.main), userInfo: nil, repeats: false)
+    }
+    
+    /* Application Singleton */
+    
+    func checkSingleton (){
+        
+        // Check if another instance of this app is running
+        let bundleID = Bundle.main.bundleIdentifier!
+        let apps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+        
+        if apps.count > 1 {
+            
+            // Activate the other instance and terminate this instance
+            for app in apps {
+                if app != NSRunningApplication.current() {
+                    app.activate(options: [.activateIgnoringOtherApps])
+                    break
+                }
+            }
+            NSApp.terminate(nil)
+        }
+        
+    }
+    
+    
+    func matches(for regex: String, in text: String) -> [String] {
+        
+        do {
+            let regex = try NSRegularExpression(pattern: regex)
+            let nsString = text as NSString
+            let results = regex.matches(in: text, range: NSRange(location: 0, length: nsString.length))
+            return results.map { nsString.substring(with: $0.range)}
+        } catch let error {
+            print("invalid regex: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
     
 }
 
@@ -295,29 +342,19 @@ extension AppDelegate {
         
         updateSize()
         
-        stopPopupTimer()
-        
-        popupTimer = setTimeout(delay: 0.3, block: { () -> Void in
-            // delay popup completion window
-            if (!self.isCompleting) {
-                // to prevent infinite loop
-                self.isCompleting = true
-                self.input.complete(nil)
-                self.isCompleting = false
-            }
-        })
-        
     }
     
     
     func textView(_ textView: NSTextView, completions words: [String], forPartialWordRange charRange: NSRange, indexOfSelectedItem index: UnsafeMutablePointer<Int>?) -> [String] {
         
+        let word = self.matches(for: "[0-9a-zA-Z_]+$", in: input.string!).last ?? ""
+        
         //        print(words, charRange.location, charRange.length)
         //        if let a=index {
         //            print("selected", a.withMemoryRebound(to: Int.self, capacity: 1, { $0.pointee }))
         //        }
-        
-        return  [input.string!] + ["aaa", "bbbb"]
+
+        return  word.isEmpty ? words : [word] + ["aaa", "bbbb"]
     }
     
     func updateSize(){
