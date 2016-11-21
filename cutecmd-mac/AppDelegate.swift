@@ -27,6 +27,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     
     let directoryURL = try? FileManager.default.url(for: .applicationScriptsDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     
+    
+    let AppList = AppDelegate.getAppsInFolders(["/Applications", "/Applications/Utilities"])
 
     func openUserScriptsFolder (){
         if let folder = directoryURL {
@@ -316,6 +318,29 @@ extension AppDelegate {
     }
     
     
+    static func getAppsInFolders (_ folders: [String]) -> [String] {
+        let filemanager:FileManager = FileManager()
+        var apps = [String]()
+        
+        for folder in folders {
+            
+            let files = try? filemanager.contentsOfDirectory(atPath: folder)
+            if let filesArr = files {
+                apps.append(contentsOf: filesArr.filter{
+                        // only .app folders
+                        $0.hasSuffix(".app")
+                    
+                    }.map{ x in
+                        // without .app extension
+                        x[x.startIndex..<x.index(x.endIndex, offsetBy: -4) ]
+                } )
+            }
+
+        }
+        
+        return apps
+    }
+    
 }
 
 
@@ -351,8 +376,10 @@ extension AppDelegate {
         //        if let a=index {
         //            print("selected", a.withMemoryRebound(to: Int.self, capacity: 1, { $0.pointee }))
         //        }
+        
+        
 
-        return  word.isEmpty ? [] : [word] + ["aaa", "bbbb"]
+        return  word.isEmpty ? [] : [word] + AppList
     }
     
     func updateSize(){
