@@ -221,22 +221,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     
     func localEventMonitor(event: NSEvent) -> NSEvent? {
         
-//        print(event.keyCode, UnicodeScalar(event.characters!) )
-        
-        if(event.modifierFlags.rawValue<=256) {
-            
-            stopPopupTimer()
-            
-            popupTimer = setTimeout(delay: 0.3, block: { () -> Void in
-                // delay popup completion window
-                if (!self.isCompleting) {
-                    // to prevent infinite loop
-                    self.isCompleting = true
-                    self.input.complete(nil)
-                    self.isCompleting = false
-                }
-            })
-        }
+        print(event.keyCode, UnicodeScalar(event.characters!), event.charactersIgnoringModifiers )
         
         // Command-Space will insert SPACE
         if(event.keyCode == 49 && event.modifierFlags.contains(.command)){
@@ -262,6 +247,22 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
             self.input.string!.removeAll()
             self.hideApp()
             return nil
+        }
+        
+        if(event.modifierFlags.rawValue<=256) {
+            // only character pressed, to popup
+            
+            stopPopupTimer()
+            
+            popupTimer = setTimeout(delay: 0.3, block: { () -> Void in
+                // delay popup completion window
+                if (!self.isCompleting) {
+                    // to prevent infinite loop
+                    self.isCompleting = true
+                    self.input.complete(nil)
+                    self.isCompleting = false
+                }
+            })
         }
         
         return event
