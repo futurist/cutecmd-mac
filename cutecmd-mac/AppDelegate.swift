@@ -9,11 +9,11 @@
 import Cocoa
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoCompleteTableViewDelegate {
     
     @IBOutlet weak var window: NSWindow!
     
-    var input: NSTextView!
+    var input: AutoCompleteTextField!
     
     // Cmd-S to switch between sapce mode
     var isSpaceMode = false
@@ -186,7 +186,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         window.collectionBehavior = [.stationary, .canJoinAllSpaces, .fullScreenAuxiliary]
 
         let top = (window.frame.height - 48)/2
-        input = TextView(frame: NSMakeRect(20, top, window.frame.width-40, 48))
+        input = AutoCompleteTextField(frame: NSMakeRect(20, top, window.frame.width-40, 48))
+        
         input.textContainerInset = NSSize(width: 10, height: 10)
         input.font = NSFont(name:"Helvetica", size:24)
         input.isEditable = true
@@ -195,6 +196,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate {
         // prevent quote etc. be replaced
         input.enabledTextCheckingTypes = 0
         
+        input.tableViewDelegate = self
         input.delegate = self
                         
         window.contentView!.addSubview(input)
@@ -377,9 +379,11 @@ extension AppDelegate {
         //            print("selected", a.withMemoryRebound(to: Int.self, capacity: 1, { $0.pointee }))
         //        }
         
+        let retArr = word.isEmpty ? [] : [word] + AppList
         
-
-        return  word.isEmpty ? [] : [word] + AppList
+        return retArr.filter({x in x.score(str)>0}).sorted(by: { (a, b) in
+            a.score(str) > b.score(str)
+        })
     }
     
     func updateSize(){
