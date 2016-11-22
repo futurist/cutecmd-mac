@@ -218,13 +218,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
         
 //        print(event.keyCode, UnicodeScalar(event.characters!), event.charactersIgnoringModifiers )
         
-        // Command-Space will insert SPACE
+        // CMD-Space will insert SPACE
         if(event.keyCode == 49 && event.modifierFlags.contains(.command)){
             self.input.string! += " "
             return nil
         }
         
-        // TAB key will switch SpaceMode
+        // CMD-S will switch SpaceMode
         if(event.charactersIgnoringModifiers == "s" && event.modifierFlags.contains(.command)){
             self.isSpaceMode = !self.isSpaceMode
             self.updateInputMode()
@@ -247,17 +247,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
         if(event.modifierFlags.rawValue<=256) {
             // only character pressed, to popup
             
-            stopPopupTimer()
-            
-            popupTimer = setTimeout(delay: 0.3, block: { () -> Void in
-                // delay popup completion window
-                if (!self.isCompleting) {
-                    // to prevent infinite loop
-                    self.isCompleting = true
-                    self.input.complete(nil)
-                    self.isCompleting = false
-                }
-            })
+           
         }
         
         return event
@@ -352,7 +342,10 @@ extension AppDelegate {
     
     func stopPopupTimer (){
         if let timer = popupTimer {
-            timer.invalidate()
+            if(timer.isValid) {
+                timer.invalidate()
+            }
+            popupTimer = nil
         }
     }
 
@@ -361,6 +354,18 @@ extension AppDelegate {
         
         updateSize()
         
+        stopPopupTimer()
+        
+        popupTimer = setTimeout(delay: 0.3, block: { () -> Void in
+            // delay popup completion window
+            if (!self.isCompleting) {
+                // to prevent infinite loop
+                self.isCompleting = true
+//                self.input.complete(nil)
+                self.isCompleting = false
+            }
+        })
+        
     }
     
     
@@ -368,6 +373,10 @@ extension AppDelegate {
         
         let str = input.string!
         let range = input.selectedRange()
+        
+        if(str.isEmpty) {
+            return []
+        }
         
 //        print(range.location, range.length, str.substring(to: str.index(str.startIndex, offsetBy: range.location))  )
         
@@ -379,7 +388,7 @@ extension AppDelegate {
         //            print("selected", a.withMemoryRebound(to: Int.self, capacity: 1, { $0.pointee }))
         //        }
         
-        let retArr = word.isEmpty ? [] : [word] + AppList
+        let retArr = word.isEmpty ? [] : [] + AppList
         
         return retArr.filter({x in x.score(str)>0}).sorted(by: { (a, b) in
             a.score(str) > b.score(str)

@@ -58,7 +58,6 @@ class AutoCompleteTextField:NSTextView{
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-        Swift.print(11111111111)
 
         let column1 = NSTableColumn(identifier: "text")
         column1.isEditable = false
@@ -93,7 +92,7 @@ class AutoCompleteTextField:NSTextView{
         self.autoCompletePopover?.appearance = NSAppearance(named: NSAppearanceNameVibrantLight)
         self.autoCompletePopover?.animates = false
         self.autoCompletePopover?.contentViewController = contentViewController
-        
+
         self.matches = [String]()
     }
     
@@ -155,7 +154,6 @@ class AutoCompleteTextField:NSTextView{
         let selectedRow = self.autoCompleteTableView!.selectedRow
         let matchCount = self.matches!.count
         if selectedRow >= 0 && selectedRow < matchCount{
-            Swift.print(1111111, selectedRow)
             self.string = self.matches![selectedRow]
             if self.tableViewDelegate!.responds(to: #selector(AutoCompleteTableViewDelegate.didSelectItem(_:))){
                 self.tableViewDelegate!.didSelectItem!(self.string!)
@@ -174,8 +172,8 @@ class AutoCompleteTextField:NSTextView{
             return
         }
         
-        let index = 0
-        self.matches = self.completionsForPartialWordRange11(subStringRange, indexOfSelectedItem: nil)
+        var index = 0
+        self.matches = self.getCompletionArray(subStringRange, indexOfSelectedItem: &index)
         
         if self.matches!.count > 0 {
             self.autoCompleteTableView?.reloadData()
@@ -197,7 +195,7 @@ class AutoCompleteTextField:NSTextView{
     }
     
     
-    func completionsForPartialWordRange11(_ charRange: NSRange, indexOfSelectedItem index: UnsafeMutablePointer<Int>?) ->[String]{
+    func getCompletionArray(_ charRange: NSRange, indexOfSelectedItem index: UnsafeMutablePointer<Int>?) ->[String]{
         if self.tableViewDelegate!.responds(
             
             to: #selector(AutoCompleteTableViewDelegate.textView(_:completions:forPartialWordRange:indexOfSelectedItem:))){
