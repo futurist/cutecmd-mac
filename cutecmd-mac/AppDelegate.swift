@@ -89,9 +89,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
     
     
     func hideApp (){
+        
+        input.autoCompletePopover?.close()
+
         stopPopupTimer()
         
         //        window.orderOut(self)
+
         NSApp.hide(self)
         
         isSpaceMode = false
@@ -218,8 +222,34 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
         
 //        print(event.keyCode, UnicodeScalar(event.characters!), event.charactersIgnoringModifiers )
         
+        let autoCompleteView = input.autoCompleteTableView!
+        let row:Int = autoCompleteView.selectedRow
+        let isShow = input.autoCompletePopover!.isShown
+        let keyCode = event.keyCode
+        
+        // CTRL-n
+        if(event.modifierFlags.contains(.control) && keyCode==45){
+            autoCompleteView.selectRowIndexes(IndexSet(integer: row + 1), byExtendingSelection: false)
+            autoCompleteView.scrollRowToVisible((autoCompleteView.selectedRow))
+            return nil
+        }
+        
+        // CTRL-p
+        if(event.modifierFlags.contains(.control) && keyCode==35){
+            autoCompleteView.selectRowIndexes(IndexSet(integer: row - 1), byExtendingSelection: false)
+            autoCompleteView.scrollRowToVisible((autoCompleteView.selectedRow))
+            return nil
+        }
+        
+        // TAB
+        if(keyCode == 48){
+            self.input.insert(input)
+            self.ExecuteCommand(key: self.input.string!)
+            return nil
+        }
+        
         // CMD-Space will insert SPACE
-        if(event.keyCode == 49 && event.modifierFlags.contains(.command)){
+        if(keyCode == 49 && event.modifierFlags.contains(.command)){
             self.input.string! += " "
             return nil
         }
@@ -231,13 +261,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
             return nil
         }
         
-        if(!self.isSpaceMode && event.keyCode == 49 || event.keyCode == 36) {  // SPACE or Enter
+        if(!self.isSpaceMode && keyCode == 49 || keyCode == 36) {  // SPACE or Enter
             
             self.ExecuteCommand(key: self.input.string!)
             return nil
         }
         
-        if(event.keyCode == 53  //ESC or Ctrl-G
+        if(keyCode == 53  //ESC or Ctrl-G
             || event.charactersIgnoringModifiers == "g" && event.modifierFlags.contains(.control)) {
             self.input.string!.removeAll()
             self.hideApp()
@@ -356,12 +386,12 @@ extension AppDelegate {
         
         stopPopupTimer()
         
-        popupTimer = setTimeout(delay: 0.3, block: { () -> Void in
+        popupTimer = setTimeout(delay: 0.2, block: { () -> Void in
             // delay popup completion window
             if (!self.isCompleting) {
                 // to prevent infinite loop
                 self.isCompleting = true
-//                self.input.complete(nil)
+                self.input.complete(self.input)
                 self.isCompleting = false
             }
         })
