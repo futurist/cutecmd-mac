@@ -6,10 +6,9 @@
 //  Copyright © 2016年 wuniu. All rights reserved.
 //
 
-import Foundation
-import AppKit
+import Cocoa
 
-class TextView: NSTextView {
+extension AutoCompleteTextField {
     
     override func drawInsertionPoint(in rect: NSRect, color: NSColor, turnedOn flag: Bool) {
         color.set()
@@ -22,3 +21,4 @@ class TextView: NSTextView {
     }
 
 }
+
