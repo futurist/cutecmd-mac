@@ -39,7 +39,7 @@ class AutoCompleteTableRowView:NSTableRowView{
 
 class AutoCompleteTextField:NSTextView{
     weak var tableViewDelegate:AutoCompleteTableViewDelegate?
-    var popOverWidth:NSNumber = 110
+    var popOverWidth:CGFloat = 200
     let popOverPadding:CGFloat = 0.0
     let maxResults = 10
     
@@ -58,10 +58,12 @@ class AutoCompleteTextField:NSTextView{
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-
+        
+        popOverWidth =  frameRect.size.width
+        
         let column1 = NSTableColumn(identifier: "text")
         column1.isEditable = false
-        column1.width = CGFloat(popOverWidth.floatValue) - 2 * popOverPadding
+        column1.width = popOverWidth - 2 * popOverPadding
         
         let tableView = NSTableView(frame: NSZeroRect)
         tableView.selectionHighlightStyle = NSTableViewSelectionHighlightStyle.regular
@@ -97,6 +99,8 @@ class AutoCompleteTextField:NSTextView{
         self.matches = [String]()
     }
     
+    
+    // NSTextView don't response to keyDown event
     override func keyDown(with theEvent: NSEvent) {
         return super.keyDown(with: theEvent)
         
@@ -213,7 +217,7 @@ extension AutoCompleteTextField: NSPopoverDelegate{
         
         let numberOfRows = min(self.autoCompleteTableView!.numberOfRows, maxResults)
         let height = (self.autoCompleteTableView!.rowHeight + self.autoCompleteTableView!.intercellSpacing.height) * CGFloat(numberOfRows) + 2 * 0.0
-        let frame = NSMakeRect(0, 0, CGFloat(popOverWidth.floatValue), height)
+        let frame = NSMakeRect(0, 0, popOverWidth, height)
         self.autoCompleteTableView?.enclosingScrollView?.frame = NSInsetRect(frame, popOverPadding, popOverPadding)
         self.autoCompletePopover?.contentSize = NSMakeSize(NSWidth(frame), NSHeight(frame))
         

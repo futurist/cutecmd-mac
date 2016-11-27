@@ -55,7 +55,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
                 && runShell(["open -a \'\(filename)\'"]) > 0
                 && runShell( args ) > 0
                 ) {
-                print("Command execute error", args)
+                
+                print("Command execute error", args, input.string!)
+                
+                // run selected item in completion
+                let selectedRow = input.autoCompleteTableView!.selectedRow
+                if( selectedRow > -1 ){
+                    let selectedCmd = input.matches![selectedRow]
+                    if( filename != selectedCmd ) {
+                        runScript( filename: selectedCmd )
+                    }
+                }
             } else {
                 hideApp()
             }
@@ -228,14 +238,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
         let keyCode = event.keyCode
         
         // CTRL-n
-        if(event.modifierFlags.contains(.control) && keyCode==45){
+        if(event.modifierFlags.contains(.control) && keyCode==45
+            || keyCode == 125 ){
             autoCompleteView.selectRowIndexes(IndexSet(integer: row + 1), byExtendingSelection: false)
             autoCompleteView.scrollRowToVisible((autoCompleteView.selectedRow))
             return nil
         }
         
         // CTRL-p
-        if(event.modifierFlags.contains(.control) && keyCode==35){
+        if(event.modifierFlags.contains(.control) && keyCode==35
+            || keyCode == 126){
             autoCompleteView.selectRowIndexes(IndexSet(integer: row - 1), byExtendingSelection: false)
             autoCompleteView.scrollRowToVisible((autoCompleteView.selectedRow))
             return nil
