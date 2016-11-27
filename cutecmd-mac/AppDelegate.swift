@@ -236,9 +236,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
         let row:Int = autoCompleteView.selectedRow
         let isShow = input.autoCompletePopover!.isShown
         let keyCode = event.keyCode
-        
+
         // CTRL-n
-        if(event.modifierFlags.contains(.control) && keyCode==45
+        if(isShow && event.modifierFlags.contains(.control) && keyCode==45
             || keyCode == 125 ){
             autoCompleteView.selectRowIndexes(IndexSet(integer: row + 1), byExtendingSelection: false)
             autoCompleteView.scrollRowToVisible((autoCompleteView.selectedRow))
@@ -246,7 +246,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
         }
         
         // CTRL-p
-        if(event.modifierFlags.contains(.control) && keyCode==35
+        if(isShow && event.modifierFlags.contains(.control) && keyCode==35
             || keyCode == 126){
             autoCompleteView.selectRowIndexes(IndexSet(integer: row - 1), byExtendingSelection: false)
             autoCompleteView.scrollRowToVisible((autoCompleteView.selectedRow))
