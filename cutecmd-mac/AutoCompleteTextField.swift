@@ -84,7 +84,8 @@ class AutoCompleteTextField:NSTextView{
         tableSrollView.documentView = tableView
         tableSrollView.hasVerticalScroller = true
         
-        let contentView:NSView = NSView(frame: NSZeroRect)
+        // see issue #1, popover throws when contentView's height=0, CoreGraphics bug?
+        let contentView:NSView = NSView(frame: NSRect.init(x: 0, y: 0, width: popOverWidth, height: 1))
         contentView.addSubview(tableSrollView)
         
         let contentViewController = NSViewController()
@@ -212,7 +213,7 @@ class AutoCompleteTextField:NSTextView{
 // MARK: - NSPopoverDelegate
 extension AutoCompleteTextField: NSPopoverDelegate{
     
-    // see issue #1, caclulate contentSize only before it will show, to make it more stable
+    // caclulate contentSize only before it will show, to make it more stable
     func popoverWillShow(_ notification: Notification) {
         
         let numberOfRows = min(self.autoCompleteTableView!.numberOfRows, maxResults)
