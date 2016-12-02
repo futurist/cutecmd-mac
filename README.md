@@ -9,6 +9,8 @@ Programmer's command runner in macOS, like Alfred/QuickSilver, but with below di
 
 - **keyUp Event**: using **keyUp** rather than keydown, you can regret your mind, by delay release your keyboard, to prevent abruptness. That's important when you're using **Emacs** or **Vim** like editors.
 
+![snapshot](snapshot.jpg)
+
 ## Usage
 
 1. Download **cutecmd.app.zip** from [Lastest Release](https://github.com/futurist/cutecmd-mac/releases/latest), or build from source.
@@ -38,6 +40,8 @@ Programmer's command runner in macOS, like Alfred/QuickSilver, but with below di
 
 ### <kbd>:setup</kdb>
 > Open user's script folder, and copy/add AppleScript there.
+
+[Scripts](Scripts) folder have some pre-defined scripts, just copy them to **User Script Folder** to try.
 
 ### <kbd>:reload</kdb>
 > Reload /Applications folder to refresh app list.
