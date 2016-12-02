@@ -101,63 +101,6 @@ class AutoCompleteTextField:NSTextView{
     }
     
     
-    // NSTextView don't response to keyDown event
-    override func keyDown(with theEvent: NSEvent) {
-        return super.keyDown(with: theEvent)
-        
-        let row:Int = self.autoCompleteTableView!.selectedRow
-        let isShow = self.autoCompletePopover!.isShown
-        
-        switch(theEvent.keyCode){
-            
-        case let x where theEvent.modifierFlags.contains(.control) && x==45: //Ctrl-n
-            
-            fallthrough
-            
-        case 125: //Down
-            if isShow{
-                self.autoCompleteTableView?.selectRowIndexes(IndexSet(integer: row + 1), byExtendingSelection: false)
-                self.autoCompleteTableView?.scrollRowToVisible((self.autoCompleteTableView?.selectedRow)!)
-                return //skip default behavior
-            }
-        
-        case let x where theEvent.modifierFlags.contains(.control) && x==35: //Ctrl-p
-            
-            fallthrough
-            
-        case 126: //Up
-            if isShow{
-                self.autoCompleteTableView?.selectRowIndexes(IndexSet(integer: row - 1), byExtendingSelection: false)
-                self.autoCompleteTableView?.scrollRowToVisible((self.autoCompleteTableView?.selectedRow)!)
-                return //skip default behavior
-            }
-        
-        case 36: // Return
-            if isShow{
-                self.insert(self)
-                return //skip default behavior
-            }
-            
-        case 48: //Tab
-            if isShow{
-                self.insert(self)
-            }
-            return
-        
-        case 49: //Space
-            if isShow {
-                self.insert(self)
-            }
-            return
-            
-        default:
-            break
-        }
-        
-        super.keyDown(with: theEvent)
-//        self.complete(self)
-    }
-
     func insert(_ sender:AnyObject){
         let selectedRow = self.autoCompleteTableView!.selectedRow
         let matchCount = self.matches!.count

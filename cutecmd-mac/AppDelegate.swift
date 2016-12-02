@@ -28,7 +28,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
     let directoryURL = try? FileManager.default.url(for: .applicationScriptsDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     
     
-    let AppList = AppDelegate.getAppsInFolders(["/Applications", "/Applications/Utilities"])
+    var AppList:[String] = []
+    
+    func loadAppList () {
+        AppList = AppDelegate.getAppsInFolders(["/Applications", "/Applications/Utilities"])
+    }
 
     func openUserScriptsFolder (){
         if let folder = directoryURL {
@@ -53,7 +57,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
             // first try run as a Applicaiton
             if( runShell(["open \'\(filename)\'"]) > 0
                 && runShell(["open -a \'\(filename)\'"]) > 0
-                && runShell( args ) > 0
+//                && runShell( args ) > 0
                 ) {
                 
                 print("Command execute error", args, input.string!)
@@ -165,9 +169,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
             return
         }
         switch (key) {
-        case "quit":
+        case ":quit":
             quitApp()
-        case "setup":
+        case ":reload":
+            loadAppList()
+        case ":setup":
             openUserScriptsFolder()
         default:
             runScript(filename: key)
@@ -188,6 +194,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        
+        loadAppList()
         
         window.isMovableByWindowBackground  = true
         window.titleVisibility = NSWindowTitleVisibility.hidden
@@ -286,25 +294,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
             return nil
         }
         
-        if(event.modifierFlags.rawValue<=256) {
-            // only character pressed, to popup
-            
-           
-        }
         
         return event
     }
     
-    
-    func sendKeyPress () {
-        // 123=left, 124=right, 125=down, 126=up
-        let src = CGEventSource(stateID: CGEventSourceStateID.hidSystemState)
-        let location = CGEventTapLocation.cghidEventTap
-        
-        CGEvent.init(keyboardEventSource: src, virtualKey: 125, keyDown: true)!.post(tap: location)
-        CGEvent.init(keyboardEventSource: src, virtualKey: 125, keyDown: false)!.post(tap: location)
-        
-    }
     
 }
 
@@ -420,15 +413,8 @@ extension AppDelegate {
             return []
         }
         
-//        print(range.location, range.length, str.substring(to: str.index(str.startIndex, offsetBy: range.location))  )
-        
         let strOfCaret = str.substring(to: str.index(str.startIndex, offsetBy: range.location))
         let word = self.matches(for: wordRegEx, in: strOfCaret).last ?? ""
-        
-        //        print(words, charRange.location, charRange.length)
-        //        if let a=index {
-        //            print("selected", a.withMemoryRebound(to: Int.self, capacity: 1, { $0.pointee }))
-        //        }
         
         let retArr = word.isEmpty ? [] : [] + AppList
         
