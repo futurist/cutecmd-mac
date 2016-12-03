@@ -24,11 +24,11 @@ Programmer's command runner in macOS, like Alfred/QuickSilver, but with below di
 
 ## Launch Order
 
-1. Try to launch exact same name with AppleScript file (without extension) from **User Script Folder**, if not found, try next.
+1. Launch same name with AppleScript file (without extension) from **User Script Folder**, if not found, try next.
 
-2. Try to launch with command line **open [input text]**, that for **Path** and **URL**, if command failed, try next.
+2. Launch command line **open [input text]**, that for **Path** and **URL**, if command failed, try next.
 
-3. Try to launch with command line **open -a [input text]**, that for **Application** in `/Applications` folder, if failed, try next.
+3. Launch command line **open -a [input text]**, that for **Application** in `/Applications` folder, end.
 
 
 ## How To Hide
@@ -37,7 +37,7 @@ Programmer's command runner in macOS, like Alfred/QuickSilver, but with below di
 
 - When press <kbd>ESC</kbd>
 
-- When press <kbd>CTRL-G</kbd> (same as Emacs `(keyboard-quit)`)
+- When press <kbd>Control-G</kbd> (same as Emacs' `(keyboard-quit)`)
 
 - When a command run successfully
 
