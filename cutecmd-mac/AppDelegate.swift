@@ -44,11 +44,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
     
     func runScript(filename: String){
         let surl = directoryURL!.appendingPathComponent(filename + ".scpt")
-        
+
+        hideApp()
+
         do {
             if try surl.checkResourceIsReachable() {
                 _ = try? NSUserAppleScriptTask(url: surl).execute(withAppleEvent: nil, completionHandler: nil)
-                self.hideApp()
             }
         } catch {
             print("script not found")
@@ -63,8 +64,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
                 
                 print("Command execute error", args, input.string!)
                 
-            } else {
-                hideApp()
             }
         }
     }
