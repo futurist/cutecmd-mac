@@ -63,14 +63,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
                 
                 print("Command execute error", args, input.string!)
                 
-                // run selected item in completion
-                let selectedRow = input.autoCompleteTableView!.selectedRow
-                if( selectedRow > -1 ){
-                    let selectedCmd = input.matches![selectedRow]
-                    if( filename != selectedCmd ) {
-                        runScript( filename: selectedCmd )
-                    }
-                }
             } else {
                 hideApp()
             }

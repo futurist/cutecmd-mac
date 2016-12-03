@@ -19,21 +19,30 @@ Programmer's command runner in macOS, like Alfred/QuickSilver, but with below di
 
 3. Run **cutecmd.app**, **Press CTRL+CTRL** to activate input window.
 
-4. Input, then hit **SPACE** to launch, with order, see next.
+4. Input, then hit **SPACE** (for input text) or **TAB** (for list selection) to launch.
 
 
 ## Launch Order
 
-1. Try to launch exact same AppleScript file (without extension) from **User Script Folder**, if not found, try next.
+1. Try to launch exact same name with AppleScript file (without extension) from **User Script Folder**, if not found, try next.
 
 2. Try to launch with command line **open [input text]**, that for **Path** and **URL**, if command failed, try next.
 
 3. Try to launch with command line **open -a [input text]**, that for **Application** in `/Applications` folder, if failed, try next.
 
-4. Try to fuzzy match **[input text]** from Application List, with text in selected item, goto **Step 1** again.
+
+## How To Hide
+
+- When input window lost focus
+
+- When press <kbd>ESC</kbd>
+
+- When press <kbd>CTRL-G</kbd> (same as Emacs `(keyboard-quit)`)
+
+- When a command run successfully
 
 
-## Command
+## Command List
 
 ### <kbd>:quit</kbd>
 > Quit cutecmd, <kbd>Command + Q</kbd> won't quit this app.
