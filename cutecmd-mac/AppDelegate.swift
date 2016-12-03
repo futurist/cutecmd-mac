@@ -27,6 +27,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
     
     let directoryURL = try? FileManager.default.url(for: .applicationScriptsDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     
+    static var isWindowShow = false
     
     var AppList:[String] = []
     
@@ -89,6 +90,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
     
     func showApp (){
         
+        AppDelegate.isWindowShow = true
+        
         updateSize()
         
         if(NSApp.isHidden) {
@@ -115,6 +118,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
         isSpaceMode = false
         updateInputMode()
         
+        AppDelegate.isWindowShow = false
+        HookKeyEvent.shared.resetState()
+        HookKeyEvent.shared.isControlDown = false
+
     }
     
     func quitApp(){
@@ -294,7 +301,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
             return nil
         }
         
-        
         return event
     }
     
@@ -460,7 +466,8 @@ private class HookKeyEvent {
     
     static func setupHook(trigger: @escaping (()->Void)){
         handler = trigger
-        let eventMask = CGEventMask((1 << CGEventType.flagsChanged.rawValue))
+        let eventMask = CGEventMask((
+            1 << CGEventType.flagsChanged.rawValue))
         guard let eventTap = CGEvent.tapCreate(tap: .cghidEventTap,
                                                place: .headInsertEventTap,
                                                options: .listenOnly,
@@ -480,6 +487,7 @@ private class HookKeyEvent {
     
     
     func checkEvent(_ event: CGEvent) -> Unmanaged<CGEvent>? {
+        
         let flags = event.flags
         
         let isKeyUp = event.flags.rawValue <= 256
@@ -492,8 +500,9 @@ private class HookKeyEvent {
         // Make sure only one modifier key
         let totalHash = commandTapped.hashValue + altTapped.hashValue + shiftTapped.hashValue + controlTapped.hashValue
         
-        // totalHash==0  equal to isKeyUp ??
-        if totalHash > 1 {
+        // totalHash==0  equal to isKeyUp ??, or window already shown
+        if totalHash > 1 || AppDelegate.isWindowShow {
+            resetState()
             return Unmanaged.passRetained(event)
         }
         
