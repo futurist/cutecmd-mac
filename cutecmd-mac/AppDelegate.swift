@@ -484,6 +484,7 @@ private class HookKeyEvent {
         if(event.type.rawValue != CGEventType.flagsChanged.rawValue){
             // any keyDown/keyUp will let control reset
             isControlDown = false
+            resetState()
             return Unmanaged.passRetained(event)
         }
         
