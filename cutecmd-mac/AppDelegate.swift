@@ -156,7 +156,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
 
     
     func updateInputMode() {
-        window.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.init(hue: 0, saturation: 0, brightness: 0.85, alpha: 1)
+        window.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.blue //NSColor.init(hue: 0, saturation: 0, brightness: 0.85, alpha: 1)
         try input.textColor = isSpaceMode ? NSColor.blue : NSColor.textColor
         try input.backgroundColor = isSpaceMode ? NSColor.lightGray : NSColor.controlBackgroundColor
     }
@@ -490,8 +490,6 @@ private class HookKeyEvent {
         
         let flags = event.flags
         
-        let isKeyUp = event.flags.rawValue <= 256
-        
         let commandTapped = flags.contains(.maskCommand)
         let shiftTapped = flags.contains(.maskShift)
         let controlTapped = flags.contains(.maskControl)
@@ -500,7 +498,10 @@ private class HookKeyEvent {
         // Make sure only one modifier key
         let totalHash = commandTapped.hashValue + altTapped.hashValue + shiftTapped.hashValue + controlTapped.hashValue
         
-        // totalHash==0  equal to isKeyUp ??, or window already shown
+        // totalHash==0  equal to isKeyUp ??
+        let isKeyUp = totalHash==0 || event.flags.rawValue <= 256
+        
+        // multiple key changed or window already shown
         if totalHash > 1 || AppDelegate.isWindowShow {
             resetState()
             return Unmanaged.passRetained(event)
