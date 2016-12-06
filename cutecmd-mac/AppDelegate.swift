@@ -458,7 +458,9 @@ private class HookKeyEvent {
     static func setupHook(trigger: @escaping (()->Void)){
         handler = trigger
         let eventMask = CGEventMask((
-            1 << CGEventType.flagsChanged.rawValue))
+            1 << CGEventType.flagsChanged.rawValue |
+                1 << CGEventType.keyDown.rawValue |
+                1 << CGEventType.keyUp.rawValue))
         guard let eventTap = CGEvent.tapCreate(tap: .cghidEventTap,
                                                place: .headInsertEventTap,
                                                options: .listenOnly,
@@ -478,6 +480,12 @@ private class HookKeyEvent {
     
     
     func checkEvent(_ event: CGEvent) -> Unmanaged<CGEvent>? {
+        
+        if(event.type.rawValue != CGEventType.flagsChanged.rawValue){
+            // any keyDown/keyUp will let control reset
+            isControlDown = false
+            return Unmanaged.passRetained(event)
+        }
         
         let flags = event.flags
         
