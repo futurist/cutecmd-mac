@@ -156,7 +156,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
 
     
     func updateInputMode() {
-        window.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.blue //NSColor.init(hue: 0, saturation: 0, brightness: 0.85, alpha: 1)
+        window.backgroundColor = isSpaceMode ? NSColor.darkGray : NSColor.init(hue: 0, saturation: 0, brightness: 0.85, alpha: 1)
         try input.textColor = isSpaceMode ? NSColor.blue : NSColor.textColor
         try input.backgroundColor = isSpaceMode ? NSColor.lightGray : NSColor.controlBackgroundColor
     }
@@ -457,6 +457,9 @@ private class HookKeyEvent {
     
     static func setupHook(trigger: @escaping (()->Void)){
         handler = trigger
+        
+        // keyDown && keyUp event have to use root privilege
+        // ADD this APP to System->Security->Privacy list
         let eventMask = CGEventMask((
             1 << CGEventType.flagsChanged.rawValue |
                 1 << CGEventType.keyDown.rawValue |
@@ -481,13 +484,6 @@ private class HookKeyEvent {
     
     func checkEvent(_ event: CGEvent) -> Unmanaged<CGEvent>? {
         
-        if(event.type.rawValue != CGEventType.flagsChanged.rawValue){
-            // any keyDown/keyUp will let control reset
-            isControlDown = false
-            resetState()
-            return Unmanaged.passRetained(event)
-        }
-        
         let flags = event.flags
         
         let commandTapped = flags.contains(.maskCommand)
@@ -502,7 +498,9 @@ private class HookKeyEvent {
         let isKeyUp = totalHash==0 || event.flags.rawValue <= 256
         
         // multiple key changed or window already shown
-        if totalHash > 1 || AppDelegate.isWindowShow {
+        if totalHash > 1 || AppDelegate.isWindowShow || event.type.rawValue != CGEventType.flagsChanged.rawValue {
+            // any keyDown/keyUp will let control reset
+            isControlDown = false
             resetState()
             return Unmanaged.passRetained(event)
         }
