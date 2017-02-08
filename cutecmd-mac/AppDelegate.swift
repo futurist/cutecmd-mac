@@ -259,6 +259,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
             return nil
         }
         
+        // CTRL+TAB will switch SpaceMode
+        if(keyCode == 48 && event.modifierFlags.contains(.control)){
+            self.isSpaceMode = !self.isSpaceMode
+            self.updateInputMode()
+            return nil
+        }
+        
         // TAB
         if(keyCode == 48){
             self.input.insert(input)
@@ -272,13 +279,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextViewDelegate, AutoComp
             return nil
         }
         
-        // CMD-S will switch SpaceMode
-        if(event.charactersIgnoringModifiers == "s" && event.modifierFlags.contains(.command)){
-            self.isSpaceMode = !self.isSpaceMode
-            self.updateInputMode()
-            return nil
-        }
-        
+
         if(!self.isSpaceMode && keyCode == 49 || keyCode == 36) {  // SPACE or Enter
             
             self.ExecuteCommand(key: self.input.string!)
